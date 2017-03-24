@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Query_1 implements Callable<HashMap<String,ArrayList<Transaction>>> {
+public class Query_2 implements Callable<HashMap<String,ArrayList<Transaction>>> {
 
     private List<File> blockChainFiles;
     private NetworkParameters networkParameters;
@@ -21,7 +21,7 @@ public class Query_1 implements Callable<HashMap<String,ArrayList<Transaction>>>
     private int max = 0;
     private Context context;
 
-    public Query_1(List<File> blockChainFiles, NetworkParameters networkParameters, int index, Context context, int min, int max) {
+    public Query_2(List<File> blockChainFiles, NetworkParameters networkParameters, int index, Context context, int min, int max) {
 
         this.blockChainFiles = blockChainFiles;
         this.networkParameters = networkParameters;
@@ -37,12 +37,9 @@ public class Query_1 implements Callable<HashMap<String,ArrayList<Transaction>>>
         Context.propagate(context);
         System.out.println("Thread " + index + " started!");
 
-        String file_path = Settings.QUERY1_PATH + "/" + index + ".txt";
-
         BlockFileLoader bfl = new BlockFileLoader(networkParameters, blockChainFiles);
 
-        File f = new File(file_path);
-        FileWriter w = new FileWriter(f);
+
         int height = 1;
 
         Pattern p = Pattern.compile("\\[(.*?)\\]");
@@ -59,7 +56,6 @@ public class Query_1 implements Callable<HashMap<String,ArrayList<Transaction>>>
                         for (TransactionOutput l : s) {
                             script_string = l.toString();
                             if (script_string.contains("RETURN")) {
-                                writeToFile(w, t);
                                 Matcher matcher = p.matcher(l.getScriptPubKey().toString());
                                 if (matcher.find()) {
                                     String identifier = null;
@@ -89,15 +85,9 @@ public class Query_1 implements Callable<HashMap<String,ArrayList<Transaction>>>
 
         }
 
-        w.flush();
-        w.close();
-
         System.out.println("Thread " + index + " finished!");
         return identifier_transactions;
 
     }
-
-    private void writeToFile(FileWriter file, Transaction t) throws IOException {
-        file.append(t.getHashAsString() + "\n");
-    }
 }
+

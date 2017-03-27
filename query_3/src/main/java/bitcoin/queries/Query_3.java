@@ -31,32 +31,29 @@ public class Query_3 {
         }
 
         long startTime = System.currentTimeMillis();
-         HashMap<Address,Coin> addresses_coin= new HashMap<>();
+         HashMap<Address, Coin> addresses_coin= new HashMap<>();
 
         BlockFileLoader bfl = new BlockFileLoader(networkParameters, blockChainFiles);
 
         // Iterate over the blocks in the blockchain.
-        int height = 1;
+        Coin limit = Coin.parseCoin("100.00");
+        int height = 0;
+
         for (Block block : bfl) {
-            if (height == 100001) break;
-            height++;
 
             for (Transaction t : block.getTransactions()) {
                 try {
                     List<TransactionOutput> s = t.getOutputs();
                     for (TransactionOutput l : s) {
-                        Coin coin=l.getValue();
-                        if (coin.subtract(Coin.FIFTY_COINS.add(Coin.FIFTY_COINS)).compareTo(Coin.ZERO) >= 0) {
-                            Script script = l.getScriptPubKey();
-                            Address address = script.getToAddress(networkParameters);
+                        Coin currTCoins = l.getValue();
+                        Script script = l.getScriptPubKey();
+                        Address address = script.getToAddress(networkParameters);
 
-                            if (addresses_coin.containsKey(address)) {
-                                Coin temp =addresses_coin.get(address);
-                                addresses_coin.put(address,temp.plus(coin));
-                            } else  {
-
-                                addresses_coin.put(address, coin);
-                            }
+                        if (!addresses_coin.containsKey(address)) {
+                            addresses_coin.put(address, currTCoins);
+                        } else {
+                            Coin temp = addresses_coin.get(address);
+                            addresses_coin.put(address, currTCoins.add(temp));
                         }
                     }
                 }
@@ -64,10 +61,21 @@ public class Query_3 {
                     //e.printStackTrace();
                 }
             }
+
+            height++;
+            if (height == 100001) break;
+
         }
-        HashMap<Address,Coin> result_map= getMapSortedByListSize(addresses_coin);
+
+        for(Iterator<Map.Entry<Address, Coin>> it = addresses_coin.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Address, Coin> entry = it.next();
+            if(entry.getValue().isLessThan(limit)) it.remove();
+        }
+
+
+        HashMap<Address,Coin> result_map = getMapSortedByListSize(addresses_coin);
         System.out.println(height);
-        save_addressToFile(result_map,addresses_coin.size());
+        save_addressToFile(result_map, addresses_coin.size());
         System.out.println("Elapsed time: " + (System.currentTimeMillis()-startTime)/1000);
     }
 
@@ -79,11 +87,10 @@ public class Query_3 {
     }
 
     private static void save_addressToFile(HashMap<Address,Coin> map,int num_address) throws IOException {
-        File f = new File(Settings.QUERY3_PATH + "result.txt");
+        File f = new File(Settings.QUERY3_PATH + "query_3.txt");
         FileWriter w = new FileWriter(f);
         for (HashMap.Entry<Address, Coin> entry : map.entrySet())
         {
-
             w.append("address: "+entry.getKey() + "  number of coins: "+ (entry.getValue().getValue()/100000000)+"\n");
         }
         w.append("number of addresses: "+num_address);

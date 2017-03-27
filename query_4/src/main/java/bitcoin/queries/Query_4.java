@@ -8,6 +8,9 @@ import org.bitcoinj.utils.BlockFileLoader;
 import org.bitcoinj.utils.BriefLogFormatter;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,27 +39,29 @@ public class Query_4 {
         BlockFileLoader bfl = new BlockFileLoader(networkParameters, blockChainFiles);
 
         // Iterate over the blocks in the blockchain.
-        int height = 1;
+        Coin limit = Coin.parseCoin("100.00");
+        LocalDateTime end_date = LocalDateTime.of(2012, Month.SEPTEMBER, 22, 10, 47, 52);
+
         for (Block block : bfl) {
-            if (height == 200001) break;
-            height++;
+
+            if (block.getTime().toInstant().isAfter(end_date.toInstant(ZoneOffset.UTC))) {
+                System.out.println(block.getTime());
+                break;
+            }
 
             for (Transaction t : block.getTransactions()) {
                 try {
                     List<TransactionOutput> s = t.getOutputs();
                     for (TransactionOutput l : s) {
-                        Coin coin=l.getValue();
-                        if (coin.subtract(Coin.FIFTY_COINS.add(Coin.FIFTY_COINS)).compareTo(Coin.ZERO) >= 0) {
-                            Script script = l.getScriptPubKey();
-                            Address address = script.getToAddress(networkParameters);
+                        Coin currTCoins = l.getValue();
+                        Script script = l.getScriptPubKey();
+                        Address address = script.getToAddress(networkParameters);
 
-                            if (addresses_coin.containsKey(address)) {
-                                Coin temp =addresses_coin.get(address);
-                                addresses_coin.put(address,temp.plus(coin));
-                            } else  {
-
-                                addresses_coin.put(address, coin);
-                            }
+                        if (!addresses_coin.containsKey(address)) {
+                            addresses_coin.put(address, currTCoins);
+                        } else {
+                            Coin temp = addresses_coin.get(address);
+                            addresses_coin.put(address, currTCoins.add(temp));
                         }
                     }
                 }
@@ -64,9 +69,16 @@ public class Query_4 {
                     //e.printStackTrace();
                 }
             }
+
         }
+
+        for(Iterator<Map.Entry<Address, Coin>> it = addresses_coin.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Address, Coin> entry = it.next();
+            if(entry.getValue().isLessThan(limit)) it.remove();
+        }
+
+
         HashMap<Address,Coin> result_map= getMapSortedByListSize(addresses_coin);
-        System.out.println(height);
         save_addressToFile(result_map,addresses_coin.size());
         System.out.println("Elapsed time: " + (System.currentTimeMillis()-startTime)/1000);
     }
@@ -86,7 +98,7 @@ public class Query_4 {
 
             w.append("address: "+entry.getKey() + "  number of coins: "+ (entry.getValue().getValue()/100000000)+"\n");
         }
-        w.append("number of addresses: "+num_address);
+        w.append("number of addresses: " + num_address);
         w.flush();
         w.close();
     }

@@ -66,6 +66,7 @@ public class Query_1 implements Callable<HashMap<String,ArrayList<Transaction>>>
                                     try {
                                         identifier = matcher.group(1).substring(0, 4);
                                     } catch (Exception e) {
+                                        //e.printStackTrace();
                                     }
                                     if (identifier_transactions.containsKey(identifier) && identifier != null) {
                                         ArrayList<Transaction> t_list = identifier_transactions.get(identifier);

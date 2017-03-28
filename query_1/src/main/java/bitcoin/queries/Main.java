@@ -28,7 +28,6 @@ public class Main {
 
         File merge_file_path = new File(Settings.QUERY1_PATH + "/merge_query_1.txt");
 
-
         if (merge_file_path.length() == 0) {
             // Read the blockchain files from the disk
             List<File> blockChainFiles = new LinkedList<File>();
@@ -39,7 +38,7 @@ public class Main {
                 blockChainFiles.add(file);
             }
 
-          int[] min_a = { 0, 77251, 154501, 231751 };
+            int[] min_a = { 0, 77251, 154501, 231751 };
             int[] max_a = { 77250, 154500, 231750, 309000 };
 
 

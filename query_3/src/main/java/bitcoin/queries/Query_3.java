@@ -8,6 +8,9 @@ import org.bitcoinj.utils.BlockFileLoader;
 import org.bitcoinj.utils.BriefLogFormatter;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,9 +40,14 @@ public class Query_3 {
 
         // Iterate over the blocks in the blockchain.
         Coin limit = Coin.parseCoin("100.00");
-        int height = 0;
+        LocalDateTime end_date = LocalDateTime.of(2010, Month.DECEMBER, 29, 11, 57, 43);
 
         for (Block block : bfl) {
+
+            if (block.getTime().toInstant().isAfter(end_date.toInstant(ZoneOffset.UTC))) {
+                System.out.println(block.getTime());
+                break;
+            }
 
             for (Transaction t : block.getTransactions()) {
                 try {
@@ -62,9 +70,6 @@ public class Query_3 {
                 }
             }
 
-            height++;
-            if (height == 100001) break;
-
         }
 
         for(Iterator<Map.Entry<Address, Coin>> it = addresses_coin.entrySet().iterator(); it.hasNext(); ) {
@@ -74,7 +79,6 @@ public class Query_3 {
 
 
         HashMap<Address,Coin> result_map = getMapSortedByListSize(addresses_coin);
-        System.out.println(height);
         save_addressToFile(result_map, addresses_coin.size());
         System.out.println("Elapsed time: " + (System.currentTimeMillis()-startTime)/1000);
     }

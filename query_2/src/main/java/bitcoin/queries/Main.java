@@ -26,10 +26,6 @@ public class Main {
         HashMap<String, ArrayList<Transaction>> identifier_transactions = new HashMap<>();
         HashMap<String, ArrayList<Transaction>> map_result = new HashMap<>();
 
-
-
-
-
             // Read the blockchain files from the disk
             List<File> blockChainFiles = new LinkedList<File>();
             for (int i =0; true; i++) {
@@ -70,7 +66,7 @@ public class Main {
     }
 
    private static void save_indentifierToFile(HashMap<String, ArrayList<Transaction>> map) throws IOException {
-        File f = new File(Settings.QUERY2_PATH + "result.txt");
+        File f = new File(Settings.QUERY2_PATH + "query_2.txt");
         FileWriter w = new FileWriter(f);
         for (HashMap.Entry<String, ArrayList<Transaction>> entry : map.entrySet())
         {

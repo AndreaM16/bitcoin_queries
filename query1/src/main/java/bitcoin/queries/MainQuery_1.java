@@ -38,28 +38,18 @@ public class MainQuery_1 {
                 blockChainFiles.add(file);
             }
 
-            int other_iterations=0;
-
             String file_path = Settings.QUERY1_PATH + "/" +"result" + ".txt";
             File f = new File(file_path);
             FileWriter w = new FileWriter(f);
 
             BlockFileLoader bfl = new BlockFileLoader(networkParameters, blockChainFiles);
+
             String hash_last_block="0000000000000000228ffe0a981f4e33225eec2d303a8794585bde3d5a6805b0";
 
             for (Block block : bfl) {
 
                 if (block.getHashAsString().equals(hash_last_block)) {
-                    other_iterations++;
-                }
-                if (other_iterations == 100) {
                     break;
-                }
-
-                // to take some other valid blocks after block 309.000 in the chain
-
-                if (other_iterations>0) {
-                    other_iterations++;
                 }
                     for (Transaction t : block.getTransactions()) {
                         try {

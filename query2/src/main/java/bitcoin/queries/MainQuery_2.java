@@ -38,21 +38,11 @@ public class MainQuery_2 {
 
         String hash_last_block = "0000000000000000228ffe0a981f4e33225eec2d303a8794585bde3d5a6805b0";
         Pattern p = Pattern.compile("\\[(.*?)\\]");
-        int other_iterations = 0;
 
         for (Block block : bfl) {
 
             if (block.getHashAsString().equals(hash_last_block)) {
-                other_iterations++;
-            }
-            if (other_iterations == 100) {
                 break;
-            }
-
-            // to take some other valid blocks after block 309.000 in the chain
-
-            if (other_iterations > 0) {
-                other_iterations++;
             }
 
             for (Transaction t : block.getTransactions()) {
@@ -122,7 +112,7 @@ public class MainQuery_2 {
 
     private static HashMap<String, ArrayList<Transaction>> getMapSortedByListSize(HashMap<String, ArrayList<Transaction>> map) {
         return map.entrySet().stream()
-                .sorted(Collections.reverseOrder((e1, e2) -> e1.getValue().size() - e2.getValue().size()))
+                .sorted(Collections.reverseOrder(Comparator.comparingInt(e -> e.getValue().size())))
                 .limit(10)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
@@ -133,8 +123,6 @@ public class MainQuery_2 {
 
         for (HashMap.Entry<String, ArrayList<Transaction>> entry : map.entrySet())
         {
-            //HashSet<Transaction> map_temp=new HashSet<>();
-            //map_temp.addAll(entry.getValue());
             w.append("identifier: "+entry.getKey() + "  number of transactions: "+ entry.getValue().size() +"\n");
         }
         w.flush();

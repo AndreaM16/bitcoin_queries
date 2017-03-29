@@ -37,8 +37,6 @@ public class MainQuery_4 {
 
         BlockFileLoader bfl = new BlockFileLoader(networkParameters, blockChainFiles);
 
-        int other_iterations = 0;
-
         String hash_last_block="000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf";
 
 
@@ -46,17 +44,9 @@ public class MainQuery_4 {
         for (Block block : bfl) {
 
             if (block.getHashAsString().equals(hash_last_block)) {
-                other_iterations++;
-            }
-            if (other_iterations == 100) {
                 break;
             }
 
-            // to take some other valid blocks after block 100.000 in the chain
-
-            if (other_iterations>0) {
-                other_iterations++;
-            }
             for (Transaction t : block.getTransactions()) {
                 try {
                     List<TransactionOutput> s = t.getOutputs();
@@ -93,7 +83,6 @@ public class MainQuery_4 {
 
     private static HashMap<Address, Coin> getMapSortedByListSize(HashMap<Address, Coin> map) {
         return map.entrySet().stream()
-                //.filter((e1) -> e1.getValue().isGreaterThan(limit))
                 .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getValue)))
                 .limit(10)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));

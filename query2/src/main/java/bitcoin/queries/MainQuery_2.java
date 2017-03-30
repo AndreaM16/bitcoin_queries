@@ -84,10 +84,7 @@ public class MainQuery_2 {
 
                         if (identifier_transactions.containsKey(identifier)) {
 
-                            if (!(identifier_transactions.get(identifier).indexOf(t) > -1) ){
-
                                 identifier_transactions.get(identifier).add(t);
-                            }
 
                         } else {
 
@@ -123,7 +120,9 @@ public class MainQuery_2 {
 
         for (HashMap.Entry<String, ArrayList<Transaction>> entry : map.entrySet())
         {
-            w.append("identifier: "+entry.getKey() + "  number of transactions: "+ entry.getValue().size() +"\n");
+            HashSet<Transaction> map_temp= new HashSet<>();
+            map_temp.addAll(entry.getValue());
+            w.append("identifier: "+entry.getKey() + "  number of transactions: "+ map_temp.size() +"\n");
         }
         w.flush();
         w.close();
